@@ -1,14 +1,14 @@
-import "../styles/globals.css";
+// app/layout.tsx
+import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import React from "react";
-import { Toaster } from "@/components/ui/Toaster";
+import "./globals.css";
 
-export const metadata = {
-  title: "OneStopShop - Online marketplace",
-  description: "Online marketplace",
+export const metadata: Metadata = {
+  title: "OneStopShop",
+  description: "Multi-seller marketplace",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -16,17 +16,7 @@ export default async function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <head>
-          <script
-            defer
-            data-domain="onestopshop.jackblatch.com"
-            src="https://plausible.io/js/script.tagged-events.js"
-          ></script>
-        </head>
-        <body>
-          <main>{children}</main>
-          <Toaster />
-        </body>
+        <body>{children}</body>
       </html>
     </ClerkProvider>
   );

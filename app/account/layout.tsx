@@ -1,3 +1,8 @@
+// app/account/layout.tsx
+export const dynamic = "force-dynamic";
+export const revalidate = 0; // optional, but makes intent clear
+
+
 import { ContentWrapper } from "@/components/content-wrapper";
 import { Footer } from "@/components/footer";
 import { NavBar } from "@/components/navbar";

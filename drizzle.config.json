@@ -1,5 +1,14 @@
 {
-  "out": "./migrations-folder",
+  "$schema": "https://drizzle.team/drizzle.config.json",
   "schema": "./db/schema.ts",
-  "breakpoints": true
+  "out": "./migrations-folder",
+  "breakpoints": true,
+  "dialect": "mysql",
+  "dbCredentials": {
+    "host": "localhost",
+    "port": 3307,
+    "user": "root",
+    "password": "root",
+    "database": "onestopshop"
+  }
 }
