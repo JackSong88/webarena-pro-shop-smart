@@ -343,7 +343,7 @@ VALUES
 INSERT INTO stores (store_name, industry, description, slug)
 VALUES
   (
-    'HappyPaws Pet Supply',
+    'HappyPaws',
     'Pet Supplies',
     'Everything your dog or cat needs – food, treats, toys and more.',
     'happypaws'
