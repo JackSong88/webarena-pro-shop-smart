@@ -17,3 +17,5 @@ export default authMiddleware({
 export const config = {
   matcher: ["/((?!.*\\..*|_next).*)"],
 };
+
+export const runtime = "nodejs";

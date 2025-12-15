@@ -5,8 +5,8 @@ import React from "react";
 import { FloatingStar } from "@/components/floating-star";
 
 export const metadata = {
-  title: "OneStopShop - Online marketplace",
-  description: "Online marketplace",
+  title: "ShopSmart - Multi-store shopping",
+  description: "Shop smart, live better with ShopSmart.",
 };
 
 export default async function StorefrontLayout({

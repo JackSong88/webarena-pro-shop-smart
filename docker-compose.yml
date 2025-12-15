@@ -22,6 +22,7 @@ services:
     depends_on:
       - db
     environment:
+      NODE_ENV: development
       # DB for Drizzle / app (matches DATABASE_URL you put in .env.local)
       DATABASE_URL: ${DATABASE_URL}
 
@@ -36,7 +37,13 @@ services:
       UPLOADTHING_APP_ID: ${UPLOADTHING_APP_ID}
     ports:
       - "3000:3000"
-    command: ["npm", "start"]
+      
+    command: sh -lc "npm install --legacy-peer-deps && npm run dev"
+
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
 
 volumes:
   db_data:

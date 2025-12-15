@@ -57,6 +57,8 @@ COPY --from=builder /app/postcss.config.js ./postcss.config.js
 COPY --from=builder /app/drizzle.config.json ./drizzle.config.json
 COPY --from=builder /app/migrations-folder ./migrations-folder
 
-EXPOSE 3000
+# ⭐ REQUIRED ⭐
+COPY --from=builder /app/db ./db
 
+EXPOSE 3000
 CMD ["npm", "start"]

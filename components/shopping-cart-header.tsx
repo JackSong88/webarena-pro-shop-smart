@@ -27,7 +27,9 @@ export const ShoppingCartHeader = async () => {
   return (
     <SheetWrapper
       trigger={
-        <SheetTrigger className="flex items-center justify-center relative -left-2">
+        <SheetTrigger className="flex items-center justify-center relative -left-2"
+                    aria-label="View shopping cart"
+                    title="View cart">
           <ShoppingCart size={26} />
           {numberOfCartItems && numberOfCartItems > 0 ? (
             <span className="bg-primary rounded-full w-6 h-6 text-white flex items-center justify-center text-sm absolute -top-2 -right-3">
