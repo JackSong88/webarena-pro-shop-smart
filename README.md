@@ -1,3 +1,14 @@
+---
+title: WebArena Amazon
+emoji: 🛒
+colorFrom: green
+colorTo: yellow
+sdk: docker
+app_port: 3000
+short_description: Instacart like environment
+pinned: false
+---
+
 ## OneStopShop Local Setup
 
 ### 1) Clone the repo
@@ -16,7 +27,7 @@ This now gives you:
 - A local MySQL database in Docker
 - Automatic schema creation and seeding from `db/init/00-bootstrap.sql`
 - Built-in local authentication
-- Local demo checkout with no Clerk or Stripe setup required
+- Local demo checkout
 
 The app will be available at `http://localhost:3000/`.
 
