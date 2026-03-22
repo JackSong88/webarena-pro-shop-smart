@@ -94,7 +94,10 @@ export const ProductEditorElements = (props: {
       // create new product
       const res = await fetch("/api/product", {
         method: "POST",
-        body: JSON.stringify(formValues),
+        body: JSON.stringify({
+          ...formValues,
+          images: newImages,
+        }),
       });
       data = (await res.json()) as unknown as {
         error: boolean;
@@ -151,19 +154,16 @@ export const ProductEditorElements = (props: {
             state={formValues}
             setState={setFormValues}
           />
-          {props.productStatus === "existing-product" && (
-            <ProductImageUploader
-              product={
-                props.initialValues as Omit<Product, "images"> & {
-                  images: ProductImages[];
-                }
-              }
-              newImages={newImages}
-              setNewImages={setNewImages}
-              imagesToDelete={imagesToDelete}
-              setImagesToDelete={setImagesToDelete}
-            />
-          )}
+          <ProductImageUploader
+            product={{
+              name: formValues.name,
+              images: (props.initialValues?.images as ProductImages[]) ?? [],
+            }}
+            newImages={newImages}
+            setNewImages={setNewImages}
+            imagesToDelete={imagesToDelete}
+            setImagesToDelete={setImagesToDelete}
+          />
           <div className="grid grid-cols-2 gap-4">
             <TextInputWithLabel
               id="price"

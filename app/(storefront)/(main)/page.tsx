@@ -51,28 +51,28 @@ export default async function Home() {
           </div>
           <TabsContent value="for-sellers">
             <HomePageLayout
-              heading={<Heading size="h1">Sell online with ease.</Heading>}
+              heading={<Heading size="h1">Sell food online with ease.</Heading>}
               subheading={
                 <Heading size="h2">
-                  Access our global marketplace and sell your <br /> products to
-                  over 1 million visitors.
+                  Launch a grocery, deli, bakery, or prepared-meals shop with
+                  local-first checkout and inventory built in.
                 </Heading>
               }
             >
               <div className="md:grid md:grid-cols-3 gap-4 flex flex-col mt-12">
                 <FeatureBanner
                   heading="No monthly fees"
-                  subheading="Fugit voluptates nihil ex et voluptas dignissimos blanditiis. Consectetur velit pariatur nihil quis nihil similique voluptatum in. Et nostrum ipsam quo magni. Velit et odit dolores."
+                  subheading="List your grocery catalog, update inventory quickly, and test the full order flow without any hosted platform setup."
                   icon={<DollarSign size={32} />}
                 />
                 <FeatureBanner
-                  heading="Access to millions of buyers"
-                  subheading="Fugit voluptates nihil ex et voluptas dignissimos blanditiis. Consectetur velit pariatur nihil quis nihil similique voluptatum in. Et nostrum ipsam quo magni. Velit et odit dolores."
+                  heading="Built for food sellers"
+                  subheading="Run a produce market, pantry shop, bakery, or ready-meal counter from the same seller dashboard."
                   icon={<User size={32} />}
                 />
                 <FeatureBanner
                   heading="Quick and easy setup"
-                  subheading="Fugit voluptates nihil ex et voluptas dignissimos blanditiis. Consectetur velit pariatur nihil quis nihil similique voluptatum in. Et nostrum ipsam quo magni. Velit et odit dolores."
+                  subheading="Seeded demo data, local auth, and local checkout make this environment easy to spin up and reset."
                   icon={<AlarmClock size={32} />}
                 />
               </div>
@@ -85,10 +85,11 @@ export default async function Home() {
           </TabsContent>
           <TabsContent value="for-buyers">
             <HomePageLayout
-              heading={<Heading size="h1">Online shopping made easy.</Heading>}
+              heading={<Heading size="h1">Grocery shopping made simple.</Heading>}
               subheading={
                 <Heading size="h2">
-                  Shop hundreds of products from sellers worldwide.
+                  Browse produce, pantry staples, deli meals, and bakery picks
+                  from independent food sellers.
                 </Heading>
               }
             >
@@ -111,13 +112,13 @@ export default async function Home() {
                 <p className="uppercase tracking-wide text-sm font-medium">
                   Featured seller
                 </p>
-                <p className="text-3xl font-bold">Tim&apos;s Terrific Toys</p>
+                <p className="text-3xl font-bold">Orchard Market</p>
                 <p>
-                  Top seller of the month! Tim&apos;s Toys has been selling toys
-                  for 10 years and is a top rated seller on the platform.
+                  Fresh fruit, peppers, onions, and daily produce essentials for
+                  fast weekly basket building.
                 </p>
                 <Link
-                  href={routes.products + "?seller=tims-toys"}
+                  href={routes.products + "?seller=orchard-market"}
                   className="mt-6"
                 >
                   <Button variant="secondary">Explore seller</Button>
@@ -125,18 +126,18 @@ export default async function Home() {
               </div>
               <div className="md:grid md:grid-cols-3 gap-4 flex flex-col mt-12">
                 <FeatureBanner
-                  heading="Free Shipping"
-                  subheading="Free shipping on all orders over $50"
+                  heading="One streamlined checkout"
+                  subheading="Mix produce, pantry staples, and prepared foods in a single local demo order."
                   icon={<Truck size={32} />}
                 />
                 <FeatureBanner
-                  heading="24/7 Customer Support"
-                  subheading="Have a question? Get in touch."
+                  heading="Fresh picks every visit"
+                  subheading="Discover quick dinners, deli bowls, and bakery items alongside grocery basics."
                   icon={<Phone size={32} />}
                 />
                 <FeatureBanner
-                  heading="Best prices"
-                  subheading="We offer the best prices on the market."
+                  heading="Everyday food variety"
+                  subheading="Six food-first shops give the storefront a more realistic Instacart-style mix."
                   icon={<DollarSign size={32} />}
                 />
               </div>

@@ -3,6 +3,7 @@
 import { db } from "@/db/db";
 import { carts, products, stores } from "@/db/schema";
 import { CartItem, CartLineItemDetails } from "@/lib/types";
+import { parseJsonColumn } from "@/lib/utils";
 import { eq, inArray } from "drizzle-orm";
 
 export async function getCart(cartId: number) {
@@ -16,7 +17,7 @@ export async function getCart(cartId: number) {
         .from(carts)
         .where(eq(carts.id, Number(cartId)));
   const cartItems = dbCartItemsObj.length
-    ? (JSON.parse(dbCartItemsObj[0].items as string) as CartItem[])
+    ? parseJsonColumn<CartItem[]>(dbCartItemsObj[0].items, [])
     : [];
 
   const cartItemDetails = !!cartItems

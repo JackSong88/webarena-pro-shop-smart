@@ -10,6 +10,7 @@ import {
   convertDateToRelativeTime,
   convertSecondsToDate,
   formatOrderNumber,
+  parseJsonColumn,
   removeOrderNumberFormatting,
 } from "@/lib/utils";
 import { getDetailsOfProductsOrdered } from "@/server-actions/orders";
@@ -41,9 +42,7 @@ export default async function OrderDetailPage(context: {
     );
 
   const record = orderDetails[0];
-  const checkoutItems = JSON.parse(
-    (record.order.items as string) ?? "[]"
-  ) as CheckoutItem[];
+  const checkoutItems = parseJsonColumn<CheckoutItem[]>(record.order.items, []);
   const products = await getDetailsOfProductsOrdered(checkoutItems);
   const totalItems = checkoutItems.reduce((acc, curr) => acc + curr.qty, 0);
 
@@ -104,6 +103,7 @@ export default async function OrderDetailPage(context: {
             <div className="mt-2">
               <StatusLabel
                 status={
+                  record.order?.stripePaymentIntentStatus === "paid" ||
                   record.order?.stripePaymentIntentStatus === "succeeded"
                     ? "success"
                     : "error"

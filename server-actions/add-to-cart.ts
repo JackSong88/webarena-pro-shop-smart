@@ -3,6 +3,7 @@
 import { db } from "@/db/db";
 import { carts } from "@/db/schema";
 import { CartItem } from "@/lib/types";
+import { parseJsonColumn } from "@/lib/utils";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
@@ -25,7 +26,7 @@ export async function addToCart(newCartItem: CartItem) {
       .from(carts)
       .where(eq(carts.id, Number(cartId)));
 
-    const allItemsInCart = JSON.parse(dbItems[0].items as string) as CartItem[];
+    const allItemsInCart = parseJsonColumn<CartItem[]>(dbItems[0].items, []);
 
     const newCartItemInCart = allItemsInCart.find(
       (item) => item.id === newCartItem.id

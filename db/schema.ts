@@ -31,6 +31,44 @@ export const stores = mysqlTable(
 
 export type Store = InferModel<typeof stores>;
 
+export const users = mysqlTable(
+  "users",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 120 }),
+    email: varchar("email", { length: 191 }),
+    passwordHash: text("password_hash"),
+    storeId: int("store_id"),
+    createdAt: int("created_at"),
+  },
+  (table) => {
+    return {
+      userEmailIndex: uniqueIndex("user_email_index").on(table.email),
+    };
+  }
+);
+
+export type User = InferModel<typeof users>;
+
+export const sessions = mysqlTable(
+  "sessions",
+  {
+    id: serial("id").primaryKey(),
+    sessionToken: varchar("session_token", { length: 191 }),
+    userId: int("user_id"),
+    expiresAt: int("expires_at"),
+  },
+  (table) => {
+    return {
+      sessionTokenIndex: uniqueIndex("session_token_index").on(
+        table.sessionToken
+      ),
+    };
+  }
+);
+
+export type Session = InferModel<typeof sessions>;
+
 export const products = mysqlTable("products", {
   id: serial("id").primaryKey(),
   name: text("name"),
@@ -68,6 +106,7 @@ export const orders = mysqlTable(
     id: serial("id").primaryKey(),
     prettyOrderId: int("pretty_order_id"),
     storeId: int("store_id"),
+    userId: int("user_id"),
     items: json("items"),
     total: decimal("total", { precision: 10, scale: 2 }).default("0"),
     stripePaymentIntentId: varchar("stripe_payment_intent_id", { length: 256 }), // text field is valid for uniqueIndex in MySQL

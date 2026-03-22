@@ -3,7 +3,11 @@ import { Button } from "@/components/ui/button";
 import { StatusLabel } from "@/components/ui/status-label";
 import { currencyFormatter } from "@/lib/currency";
 import { BuyersOrderTable, CheckoutItem } from "@/lib/types";
-import { convertSecondsToDate, formatOrderNumber } from "@/lib/utils";
+import {
+  convertSecondsToDate,
+  formatOrderNumber,
+  parseJsonColumn,
+} from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { formatRelative } from "date-fns";
 import { ArrowUpDown } from "lucide-react";
@@ -40,7 +44,7 @@ export const columns: ColumnDef<BuyersOrderTable>[] = [
     accessorKey: "items",
     header: "Items",
     cell: ({ row }) => {
-      const items = JSON.parse(row.getValue("items")) as CheckoutItem[];
+      const items = parseJsonColumn<CheckoutItem[]>(row.getValue("items"), []);
       const total = items.reduce((acc, item) => acc + Number(item.qty), 0);
       return (
         <p>
@@ -50,12 +54,14 @@ export const columns: ColumnDef<BuyersOrderTable>[] = [
     },
   },
   {
-    accessorKey: "stripePaymentIntentStatus",
+    accessorKey: "paymentStatus",
     header: "Payment Status",
     cell: ({ row }) => {
-      const status = row.getValue("stripePaymentIntentStatus") as string;
+      const status = row.getValue("paymentStatus") as string;
       return (
-        <StatusLabel status={status === "succeeded" ? "success" : "error"}>
+        <StatusLabel
+          status={status === "paid" || status === "succeeded" ? "success" : "error"}
+        >
           {status}
         </StatusLabel>
       );

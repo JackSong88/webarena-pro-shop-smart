@@ -3,6 +3,7 @@
 import { db } from "@/db/db";
 import { carts } from "@/db/schema";
 import { CartItem } from "@/lib/types";
+import { parseJsonColumn } from "@/lib/utils";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
@@ -20,7 +21,7 @@ export async function updateCart(updateCartItem: CartItem) {
     .where(eq(carts.id, Number(cartId)));
 
   const parsedCartItems = dbCartItemsObj
-    ? (JSON.parse(dbCartItemsObj[0].items as string) as CartItem[])
+    ? parseJsonColumn<CartItem[]>(dbCartItemsObj[0].items, [])
     : [];
 
   const cartItemsExcludingUpdateItem = parsedCartItems.filter(

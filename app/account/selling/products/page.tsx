@@ -5,16 +5,16 @@ import Link from "next/link";
 import { db } from "@/db/db";
 import { products } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { currentUser } from "@clerk/nextjs";
+import { requireUser } from "@/lib/auth";
 import { secondLevelNestedRoutes } from "@/lib/routes";
 import { InfoCard } from "@/components/admin/info-card";
 import { DataTable } from "./data-table";
 import { type Product, columns } from "./columns";
 
 async function getData(): Promise<Product[]> {
-  const user = await currentUser();
+  const user = await requireUser();
   // ternary required here as while the layout won't render children if not authed, RSC still seems to run regardless
-  return !isNaN(Number(user?.privateMetadata.storeId))
+  return !isNaN(Number(user?.storeId))
     ? ((await db
         .select({
           id: products.id,
@@ -24,7 +24,7 @@ async function getData(): Promise<Product[]> {
           images: products.images,
         })
         .from(products)
-        .where(eq(products.storeId, Number(user?.privateMetadata.storeId)))
+        .where(eq(products.storeId, Number(user?.storeId)))
         .catch((err) => {
           console.log(err);
           return [];

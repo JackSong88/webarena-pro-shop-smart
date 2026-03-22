@@ -1,10 +1,5 @@
-"use client";
+import { AuthCard } from "@/components/auth/auth-card";
 
-import { routes } from "@/lib/routes";
-import { SignUp } from "@clerk/nextjs";
-
-const SignUpPage = () => (
-  <SignUp path={routes.signUp} routing="path" signInUrl={routes.signIn} />
-);
+const SignUpPage = () => <AuthCard mode="signUp" />;
 
 export default SignUpPage;

@@ -49,12 +49,12 @@ export default async function StorefrontProductsPage(context: {
     <div>
       <CollectionHeaderWrapper heading="Products">
         <p>
-          Browse all products from our marketplace sellers – groceries, tech,
-          fashion and home essentials in one place.
+          Browse produce, pantry staples, prepared meals, and bakery items from
+          our grocery-first marketplace sellers.
         </p>
         <p>
-          Filter by Featured Sellers to see items from a specific store, or use
-          the categories to discover something new.
+          Filter by seller to shop a specific food counter, or scan the full
+          catalog to build an Instacart-style mixed basket.
         </p>
         
       </CollectionHeaderWrapper>

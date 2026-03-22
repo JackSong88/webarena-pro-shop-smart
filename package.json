@@ -10,9 +10,8 @@
     "tailwind": "npx tailwindcss -i ./styles/globals.css -o ./tailwind-dist/output.css --watch",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "db:migrate": "npx drizzle-kit migrate",
-    "db:seed": "docker compose exec db sh -lc \"mysql -u root -proot onestopshop < /team_seed.sql\"",
-    "db:setup": "npm run db:migrate && npm run db:seed"
+    "db:seed": "docker compose run --rm db-reset",
+    "db:reset": "docker compose down -v && docker compose up --build"
   },
   "dependencies": {
     "@clerk/nextjs": "^4.17.1",

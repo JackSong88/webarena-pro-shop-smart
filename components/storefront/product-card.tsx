@@ -1,6 +1,4 @@
-import Image from "next/image";
 import { Text } from "../ui/text";
-import { ImageOff } from "lucide-react";
 import { routes } from "@/lib/routes";
 import Link from "next/link";
 import { currencyFormatter } from "@/lib/currency";
@@ -22,6 +20,8 @@ export const ProductCard = (props: {
         <ProductImage
           src={props.storeAndProduct.product.images[0]?.url}
           alt={props.storeAndProduct.product.images[0]?.alt}
+          fallbackText={props.storeAndProduct.product.name ?? "Product"}
+          fallbackHint={props.storeAndProduct.store.name ?? "ShopSmart"}
           height="h-48"
           width="w-full"
         />

@@ -3,15 +3,15 @@ import { DataTable } from "./components/data-table";
 import { columns } from "./components/columns";
 import { db } from "@/db/db";
 import { orders, stores } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 import { InfoCard } from "@/components/admin/info-card";
 import { Box } from "lucide-react";
 import { HeadingAndSubheading } from "@/components/admin/heading-and-subheading";
-import { currentUser } from "@clerk/nextjs";
+import { requireUser } from "@/lib/auth";
 
 async function getData(): Promise<BuyersOrderTable[]> {
-  const user = await currentUser();
-  const userEmailAddress = user?.emailAddresses[0].emailAddress;
+  const user = await requireUser();
+  const userEmailAddress = user.email;
   if (!userEmailAddress) return [];
   const storeOrders = await db
     .select({
@@ -19,12 +19,14 @@ async function getData(): Promise<BuyersOrderTable[]> {
       sellerName: stores.name,
       items: orders.items,
       total: orders.total,
-      stripePaymentIntentStatus: orders.stripePaymentIntentStatus,
+      paymentStatus: orders.stripePaymentIntentStatus,
       createdAt: orders.createdAt,
     })
     .from(orders)
     .leftJoin(stores, eq(orders.storeId, stores.id))
-    .where(eq(orders.email, userEmailAddress));
+    .where(
+      or(eq(orders.userId, user.id), eq(orders.email, userEmailAddress))
+    );
   return (storeOrders as BuyersOrderTable[]).sort(
     (a, b) => b.createdAt - a.createdAt
   );

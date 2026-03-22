@@ -1,135 +1,122 @@
 "use client";
 
-import { useDropzone } from "react-dropzone";
-import type { FileWithPath } from "react-dropzone";
-
-import { useUploadThing } from "@/lib/uploadthing-generate-react-helpers";
-import { useCallback, useState } from "react";
-import { Product } from "@/db/schema";
+import { useState } from "react";
 import { ProductImages } from "@/lib/types";
-import { generateClientDropzoneAccept } from "uploadthing/client";
 import { Label } from "@radix-ui/react-label";
-import Image from "next/image";
 import { XIcon } from "lucide-react";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { ProductImage } from "../product-image";
 import { toast } from "../ui/use-toast";
 
 export function ProductImageUploader(props: {
-  product: Omit<Product, "images"> & { images: ProductImages[] };
+  product: {
+    name: string | null;
+    images: ProductImages[];
+  };
   newImages: ProductImages[];
   setNewImages: React.Dispatch<React.SetStateAction<ProductImages[]>>;
   imagesToDelete: ProductImages[];
   setImagesToDelete: React.Dispatch<React.SetStateAction<ProductImages[]>>;
 }) {
-  const [files, setFiles] = useState<File[]>([]);
-  const onDrop = useCallback((acceptedFiles: FileWithPath[]) => {
-    setFiles(acceptedFiles);
-  }, []);
-
-  const { getRootProps, getInputProps } = useDropzone({
-    onDrop,
-    accept: generateClientDropzoneAccept(["image"]),
+  const [draftImage, setDraftImage] = useState({
+    url: "",
+    alt: "",
   });
 
-  const { startUpload, isUploading, permittedFileInfo } = useUploadThing(
-    "imageUploader",
-    {
-      onClientUploadComplete: (data) => {
-        setFiles([]);
-        if (!data) return;
-        props.setNewImages(
-          data.map((item) => {
-            return {
-              url: item.url,
-              alt: item.key.split("_")[1],
-              id: item.key,
-            };
-          })
-        );
-      },
-      onUploadError: () => {
-        toast({
-          title: "Sorry, an error occured while uploading your image(s).",
-        });
-      },
-    }
+  const visibleImages = [...props.product.images, ...props.newImages].filter(
+    (item) => !props.imagesToDelete.includes(item)
   );
 
   return (
     <div>
-      <Label htmlFor="product-images">Images</Label>
-      <div className="mt-2 border border-border p-4 rounded-md flex items-center justify-start gap-2 flex-wrap">
-        {[...props.product.images, ...props.newImages]
-          .filter((item) => !props.imagesToDelete.includes(item))
-          .map((image) => (
-            <div key={image.id}>
-              <li className="relative w-36 h-36">
-                <Image
+      <Label htmlFor="product-image-url">Images</Label>
+      <div className="mt-2 border border-border p-4 rounded-md flex items-start justify-start gap-3 flex-wrap">
+        {visibleImages.length ? (
+          visibleImages.map((image) => (
+            <div key={image.id} className="w-36">
+              <div className="relative">
+                <ProductImage
                   src={image.url}
-                  alt={image.alt ?? ""}
-                  fill
-                  className="object-cover w-36 h-36"
+                  alt={image.alt}
+                  fallbackText={props.product.name ?? "Product"}
+                  fallbackHint="Catalog"
+                  height="h-36"
+                  width="w-36"
                 />
                 <button
                   type="button"
                   onClick={() => {
                     props.setImagesToDelete((prev) => [...prev, image]);
                   }}
-                  className="relative -top-4 ml-28 bg-white rounded-full w-6 h-6 flex items-center justify-center"
+                  className="absolute -top-2 -right-2 bg-white rounded-full w-7 h-7 flex items-center justify-center border border-border"
                 >
-                  <XIcon className="w-5 h-5" />
+                  <XIcon className="w-4 h-4" />
                 </button>
-              </li>
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground line-clamp-2">
+                {image.alt || image.url}
+              </p>
             </div>
-          ))}
-        <div
-          {...getRootProps()}
-          className="border-border border-2 rounded-md border-dashed w-36 h-36"
-        >
-          <p className="items-center justify-center flex relative top-[50px] flex-col text-sm">
-            <span className="font-semibold mr-1">Click to upload</span>
-            <span>or drag and drop.</span>
-            <span className="text-xs text-muted-foreground">
-              (Max {permittedFileInfo?.config.image?.maxFileSize})
-            </span>
-          </p>
-          <input
-            id="product-images"
-            className="relative z-10 h-[100px] border-2 opacity-0 w-full"
-            {...getInputProps()}
-            style={{ display: "block" }}
+          ))
+        ) : (
+          <div className="rounded-xl border border-dashed border-border bg-secondary px-4 py-5 text-sm text-muted-foreground">
+            No custom product images yet. Local placeholders will be shown until
+            you add one.
+          </div>
+        )}
+      </div>
+
+      <div className="mt-4 grid gap-4 md:grid-cols-[1.4fr_1fr_auto]">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="product-image-url">Image URL</Label>
+          <Input
+            id="product-image-url"
+            placeholder="/images/my-product.jpg or https://..."
+            value={draftImage.url}
+            onChange={(event) =>
+              setDraftImage((current) => ({ ...current, url: event.target.value }))
+            }
           />
         </div>
-      </div>
-      {files.length > 0 && (
-        <div className="mt-4">
-          {files.map((file, i) => (
-            <li key={i}>
-              {file.name} - {file.size} bytes
-              {/* <Button
-                type="button"
-                variant="link"
-                onClick={() => {
-                  files.splice(i, 1);
-                  // re-render not working
-                }}
-              >
-                Remove
-              </Button> */}
-            </li>
-          ))}
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="product-image-alt">Alt text</Label>
+          <Input
+            id="product-image-alt"
+            placeholder="Product detail photo"
+            value={draftImage.alt}
+            onChange={(event) =>
+              setDraftImage((current) => ({ ...current, alt: event.target.value }))
+            }
+          />
+        </div>
+        <div className="flex items-end">
           <Button
-            disabled={isUploading}
-            className="mt-2"
-            onClick={() => startUpload(files)}
             type="button"
+            onClick={() => {
+              if (!draftImage.url.trim()) {
+                toast({
+                  title: "Image URL required",
+                  description: "Add a URL or local path before saving the image.",
+                });
+                return;
+              }
+
+              props.setNewImages((current) => [
+                ...current,
+                {
+                  id: `image-${Date.now()}`,
+                  url: draftImage.url.trim(),
+                  alt: draftImage.alt.trim(),
+                },
+              ]);
+              setDraftImage({ url: "", alt: "" });
+            }}
           >
-            {`${isUploading ? "Uploading" : "Upload"} ${files.length} file${
-              files.length > 1 ? "s" : ""
-            }${isUploading ? "..." : ""}`}
+            Add image
           </Button>
         </div>
-      )}
+      </div>
     </div>
   );
 }

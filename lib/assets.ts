@@ -1,5 +1,52 @@
 export const images = [
-  "https://uploadthing.com/f/afe0d65b-df4c-4feb-83e0-e3cd00c5a6cb_lindsay-henwood-7_kRuX1hSXM-unsplash-min.jpg",
-  "https://uploadthing.com/f/4fd84b7c-cf5c-4ca0-a381-34d99a307429_nik-korba-3WceTBlUoMs-unsplash-min.jpg",
-  "https://uploadthing.com/f/5cf2b3c6-c116-447b-8180-0db55c529393_nong-v-iad87c3bgwU-unsplash-min.jpg",
+  "/images/hero/market-fresh.webp",
+  "/images/hero/weeknight-dinner.webp",
+  "/images/hero/bakery-finds.webp",
 ];
+
+export const collectionHeaderImage = "/images/hero/market-fresh.webp";
+
+const fallbackRules = [
+  {
+    match: ["banana", "egg", "bread", "freshmart"],
+    image: "/images/products/freshmart/organic-bananas.jpg",
+  },
+  {
+    match: ["spinach", "tomato", "avocado", "greenbasket"],
+    image: "/images/products/greenbasket/organic-spinach-250g.jpg",
+  },
+  {
+    match: ["apple", "berry", "strawberry", "kiwi", "lemon", "cucumber", "onion", "pepper", "orchard"],
+    image: "/images/products/orchard-market/strawberries-16oz.webp",
+  },
+  {
+    match: ["milk", "rice", "honey", "coffee", "juice", "water", "oil", "pantry"],
+    image: "/images/products/pantry-lane/whole-milk-2l.webp",
+  },
+  {
+    match: ["beef", "chicken", "salmon", "fish", "ice cream", "potato", "protein", "family fare"],
+    image: "/images/products/family-fare/angus-beef-strip-steaks-2ct.webp",
+  },
+  {
+    match: ["pizza", "pasta", "biryani", "karahi", "curry", "stir-fry", "shrimp", "ready table"],
+    image: "/images/products/ready-table/stone-oven-margherita-pizza.webp",
+  },
+  {
+    match: ["salad", "quinoa", "avocado", "chickpea", "tagine", "green spoon"],
+    image: "/images/products/green-spoon/mediterranean-quinoa-salad.webp",
+  },
+  {
+    match: ["cookie", "bruschetta", "tiramisu", "smoothie", "falafel", "spanakopita", "bakery", "crumb"],
+    image: "/images/products/oven-and-crumb/chocolate-chip-cookies-6-pack.webp",
+  },
+];
+
+export const getProductFallbackImage = (title = "", hint = "") => {
+  const searchableText = `${title} ${hint}`.toLowerCase();
+
+  const matchedRule = fallbackRules.find((rule) =>
+    rule.match.some((token) => searchableText.includes(token))
+  );
+
+  return matchedRule?.image ?? "/images/hero/weeknight-dinner.webp";
+};

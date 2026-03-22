@@ -1,12 +1,7 @@
 "use client";
 
-import { routes } from "@/lib/routes";
-import { SignIn } from "@clerk/nextjs";
+import { AuthCard } from "@/components/auth/auth-card";
 
-const SignInWrapper = () => (
-  <>
-    <SignIn path={routes.signIn} routing="path" signUpUrl={routes.signUp} />
-  </>
-);
+const SignInWrapper = () => <AuthCard mode="signIn" />;
 
 export default SignInWrapper;

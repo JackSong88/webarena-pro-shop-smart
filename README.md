@@ -1,28 +1,53 @@
-## OneStopShop Setup Guide
+## OneStopShop Local Setup
 
 ### 1) Clone the repo
-```
-git clone https://github.com/JackSong88/webarena-jbb-magento.git
-cd webarena-jbb-magento
-``` 
-
-### 2) Create .env file
-- Create a [Clerk](https://clerk.com) application for authentication and copy keys into `.env`
-```
-DATABASE_URL="mysql://app:app@db:3306/onestopshop"
-
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_xxxxx
-CLERK_SECRET_KEY=sk_test_xxxxx
-
-NEXT_PUBLIC_APP_URL=http://localhost:3000/
-
-UPLOADTHING_SECRET=""
-UPLOADTHING_APP_ID=""
+```bash
+git clone <your-repo-url>
+cd webarena-pro-shop-smart
 ```
 
-### 3) Run the environment
-- Start the environment through docker:
+### 2) Start everything
+```bash
+docker compose up --build
 ```
-docker compose up
+
+This now gives you:
+
+- A local MySQL database in Docker
+- Automatic schema creation and seeding from `db/init/00-bootstrap.sql`
+- Built-in local authentication
+- Local demo checkout with no Clerk or Stripe setup required
+
+The app will be available at `http://localhost:3000/`.
+
+### Demo accounts
+
+All seeded accounts use the password `demo1234`.
+
+- Buyer: `buyer@shopsmart.local`
+- Seller: `freshmart@shopsmart.local`
+- Seller: `greenbasket@shopsmart.local`
+- Seller: `orchard@shopsmart.local`
+- Seller: `oven@shopsmart.local`
+
+### Reset the database
+
+To fully reset the environment back to the seeded state:
+
+```bash
+docker compose down -v
+docker compose up --build
 ```
-- It will automatically seed the database with stores and products and when ready, can be accessed through `http://localhost:3000/` or the user specific `NEXT_PUBLIC_APP_URL`.
+
+Or, if the stack is already running:
+
+```bash
+docker compose run --rm db-reset
+```
+
+### Notes
+
+- No third-party auth dashboard is required for local development.
+- No hosted payment provider is required for checkout in the local demo.
+- Seeded grocery catalog data and images are local once the vendoring step has run.
+- Product cards still have local fallback imagery for newly created items without image URLs.

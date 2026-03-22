@@ -36,6 +36,8 @@ export const OrderLineItems = (props: {
                 <ProductImage
                   src={product.images[0]?.url}
                   alt={product.images[0]?.alt}
+                  fallbackText={product.name ?? "Product"}
+                  fallbackHint="Order"
                   sizes="50px"
                   height="h-[50px]"
                   width="w-[50px]"

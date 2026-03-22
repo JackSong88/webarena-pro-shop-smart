@@ -1,14 +1,24 @@
 "use server";
 
 import { db } from "@/db/db";
-import { stores } from "@/db/schema";
-import { currentUser, clerkClient } from "@clerk/nextjs/server";
+import { stores, users } from "@/db/schema";
+import { requireUser } from "@/lib/auth";
 import { eq, or } from "drizzle-orm";
 import { z } from "zod";
 import { createSlug } from "@/lib/createSlug";
 
 export async function createStore(storeName: string) {
   try {
+    const user = await requireUser();
+
+    if (user.storeId) {
+      return {
+        error: true,
+        message: "Store already exists",
+        action: "You already have a store linked to this account.",
+      };
+    }
+
     const existingStore = await db
       .select()
       .from(stores)
@@ -30,30 +40,7 @@ export async function createStore(storeName: string) {
       slug: createSlug(storeName),
     });
 
-    const user = await currentUser();
-    if (!user) {
-      const res = {
-        error: false,
-        message: "Unauthenticated",
-        action: "User is not authenticated",
-      };
-
-      return res;
-    }
-
-    if (user?.privateMetadata.storeId) {
-      const res = {
-        error: false,
-        message: "Store already exists",
-        action: "You already have a store",
-      };
-
-      return res;
-    }
-
-    await clerkClient.users.updateUser(user.id, {
-      privateMetadata: { ...user.privateMetadata, storeId },
-    });
+    await db.update(users).set({ storeId }).where(eq(users.id, user.id));
 
     const res = {
       error: false,
@@ -85,16 +72,14 @@ export async function updateStore(args: {
   });
 
   try {
-    const user = await currentUser();
+    const user = await requireUser();
 
-    if (!inputSchema.parse(args)) {
-      throw new Error("invalid input");
-    }
+    inputSchema.parse(args);
 
     await db
       .update(stores)
       .set(args)
-      .where(eq(stores.id, Number(user?.privateMetadata.storeId)));
+      .where(eq(stores.id, Number(user.storeId)));
 
     const res = {
       error: false,

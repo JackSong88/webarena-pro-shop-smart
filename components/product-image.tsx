@@ -1,51 +1,42 @@
+import { getProductFallbackImage } from "@/lib/assets";
 import { cn } from "@/lib/utils";
-import { ImageOff } from "lucide-react";
-import Image from "next/image";
 
 export const ProductImage = (props: {
-  src: string;
-  alt: string;
+  src?: string;
+  alt?: string;
   sizes?: string;
   imageClassName?: string;
   wrapperClassName?: string;
+  fallbackText?: string;
+  fallbackHint?: string;
   height: `h-${string}`;
   width: `w-${string}`;
 }) => {
+  const alt = props.alt ?? props.fallbackText ?? "Product image";
+  const resolvedSrc =
+    props.src && props.src.trim() !== ""
+      ? props.src
+      : getProductFallbackImage(
+          props.fallbackText ?? "ShopSmart Product",
+          props.fallbackHint ?? "Local Catalog"
+        );
+
   return (
-    <>
-      {props.src ? (
-        <div
-          className={cn(
-            "relative",
-            props.height,
-            props.width,
-            props.wrapperClassName
-          )}
-        >
-          <Image
-            src={props.src}
-            alt={props.alt}
-            fill
-            sizes={props.sizes}
-            className={cn(
-              "object-cover",
-              props.imageClassName,
-              props.height,
-              props.width
-            )}
-          />
-        </div>
-      ) : (
-        <div
-          className={cn(
-            "bg-secondary flex justify-center items-center",
-            props.height,
-            props.width
-          )}
-        >
-          <ImageOff />
-        </div>
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-md",
+        props.height,
+        props.width,
+        props.wrapperClassName
       )}
-    </>
+    >
+      <img
+        src={resolvedSrc}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        className={cn("h-full w-full object-cover", props.imageClassName)}
+      />
+    </div>
   );
 };

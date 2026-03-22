@@ -1,12 +1,12 @@
 "use server";
 import { db } from "@/db/db";
 import { stores } from "@/db/schema";
-import { currentUser } from "@clerk/nextjs";
+import { getCurrentUser } from "@/lib/auth";
 import { eq } from "drizzle-orm";
 
 export async function getStoreId() {
-  const user = await currentUser();
-  return user?.privateMetadata.storeId;
+  const user = await getCurrentUser();
+  return user?.storeId;
 }
 
 export async function getStoreSlug(storeId: number) {

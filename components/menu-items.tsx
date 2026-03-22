@@ -17,28 +17,28 @@ import { routes } from "@/lib/routes";
 
 const components: { title: string; href: string; description: string }[] = [
   {
-    title: "Tim's Toys",
-    href: "/",
+    title: "Orchard Market",
+    href: "/products?seller=orchard-market",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod lorem ipsum dolor sit amet.",
+      "Seasonal produce, fruit bags, peppers, onions, and fresh weekly staples.",
   },
   {
-    title: "James' Jackpots",
-    href: "/",
+    title: "Pantry Lane",
+    href: "/products?seller=pantry-lane",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod lorem ipsum dolor sit amet.",
+      "Pantry refills, breakfast basics, drinks, and everyday grocery essentials.",
   },
   {
-    title: "Dave's Deals",
-    href: "/",
+    title: "FreshMart",
+    href: "/products?seller=freshmart",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod lorem ipsum dolor sit amet.",
+      "Neighborhood grocery staples with bananas, milk, eggs, and fresh bread.",
   },
   {
-    title: "Tim's Trainers",
-    href: "/",
+    title: "GreenBasket",
+    href: "/products?seller=greenbasket",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod lorem ipsum dolor sit amet.",
+      "Organic produce and pantry picks like spinach, avocados, tomatoes, and rice.",
   },
 ];
 
@@ -75,13 +75,13 @@ export function MenuItems() {
                 </NavigationMenuLink>
               </li>
               <ListItem href={routes.products} title="New Arrivals">
-                Shop our new arrivals and exclusive collections.
+                Shop this week&apos;s produce, deli meals, and pantry picks.
               </ListItem>
-              <ListItem href={routes.products} title="Sport">
-                Discover our new sports range.
+              <ListItem href={routes.products} title="Pantry Staples">
+                Build a basket with rice, milk, coffee, and breakfast basics.
               </ListItem>
-              <ListItem href={routes.products} title="Summer Sale">
-                Grab a bargain with our summer sale.
+              <ListItem href={routes.products} title="Ready Meals">
+                Find pasta trays, curry bowls, salads, and grab-and-go dinners.
               </ListItem>
             </ul>
           </NavigationMenuContent>

@@ -2,7 +2,7 @@
 
 import { db } from "@/db/db";
 import { Product, products } from "@/db/schema";
-import { currentUser } from "@clerk/nextjs";
+import { requireUser } from "@/lib/auth";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 
@@ -19,7 +19,8 @@ export async function createProduct(
   try {
     schema.parse(productValues);
 
-    const user = await currentUser();
+    const user = await requireUser();
+    if (!user.storeId) throw new Error("Store not found for current user");
 
     const values = {
       name: productValues.name,
@@ -32,7 +33,7 @@ export async function createProduct(
         ? "0"
         : String(productValues.inventory),
       images: productValues.images,
-      storeId: Number(user?.privateMetadata.storeId),
+      storeId: Number(user.storeId),
     };
 
     const dbRes = await db.insert(products).values(values);
@@ -69,7 +70,8 @@ export async function updateProduct(productValues: Omit<Product, "storeId">) {
   try {
     schema.parse(productValues);
 
-    const user = await currentUser();
+    const user = await requireUser();
+    if (!user.storeId) throw new Error("Store not found for current user");
 
     const values = {
       name: productValues.name,
@@ -82,7 +84,7 @@ export async function updateProduct(productValues: Omit<Product, "storeId">) {
         ? "0"
         : String(productValues.inventory),
       images: productValues.images,
-      storeId: Number(user?.privateMetadata.storeId),
+      storeId: Number(user.storeId),
     };
 
     const dbRes = await db
@@ -121,7 +123,14 @@ export async function deleteProduct(productId: number | undefined) {
 
     if (!productId) throw new Error("No product id provided");
 
-    await db.delete(products).where(eq(products.id, productId));
+    const user = await requireUser();
+    if (!user.storeId) throw new Error("Store not found for current user");
+
+    await db
+      .delete(products)
+      .where(
+        and(eq(products.id, productId), eq(products.storeId, Number(user.storeId)))
+      );
 
     return {
       error: false,

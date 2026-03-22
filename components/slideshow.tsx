@@ -2,9 +2,7 @@
 
 import { images } from "@/lib/assets";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Heading } from "./ui/heading";
 import { Button } from "./ui/button";
 import { routes } from "@/lib/routes";
 import Link from "next/link";
@@ -30,11 +28,10 @@ export const SlideShow = () => {
           key={currentImageIndex}
           className="relative w-full h-[500px] animate-fade-in"
         >
-          <Image
+          <img
             src={images[currentImageIndex]}
-            alt="hero"
-            fill
-            className="object-cover"
+            alt="ShopSmart hero banner"
+            className="h-full w-full object-cover"
           />
         </div>
         <div className="absolute w-full h-full bg-translucentDark top-0 bottom-0 left-0 right-0">
@@ -43,12 +40,12 @@ export const SlideShow = () => {
               <p className="uppercase font-medium tracking-wide">Summer Sale</p>
               <div className="flex flex-col gap-2 mb-2">
                 <p className="text-3xl font-bold">
-                  Save up to 50% on our entire range
+                  Shop produce, pantry staples, and ready-made meals
                 </p>
-                <p>Over 100 products discounted</p>
+                <p>Mix grocery essentials from six food-first sellers in one cart.</p>
               </div>
               <Link href={routes.products}>
-                <Button>Shop Now</Button>
+                <Button>Shop Groceries</Button>
               </Link>
             </div>
           </div>

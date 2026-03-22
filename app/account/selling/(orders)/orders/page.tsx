@@ -18,7 +18,7 @@ async function getData(): Promise<OrdersTable[]> {
       name: orders.name,
       items: orders.items,
       total: orders.total,
-      stripePaymentIntentStatus: orders.stripePaymentIntentStatus,
+      paymentStatus: orders.stripePaymentIntentStatus,
       createdAt: orders.createdAt,
     })
     .from(orders)

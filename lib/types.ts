@@ -26,56 +26,29 @@ export type OrderItemDetails = Omit<
   images: ProductImages[];
 };
 
-export type StripeAccount = {
-  details_submitted: boolean;
-  created: number;
-  default_currency: string;
-  country: string;
-  email: string;
-};
-
-export type StripePaymentIntent = {
-  id: string;
-  amount: number;
-  created: number;
-  currency: string;
-  metadata: {
-    cartId: number;
-  };
-  status: "requires_payment_method" | string;
-};
-
-export type StripeCheckoutFormDetails = {
-  name: string;
-  email: string;
-  address: {
-    line1: string;
-    line2: string | null;
-    city: string;
-    state: string;
-    postal_code: string;
-    country: string;
-  };
-};
-
 export type OrdersTable = Omit<
   Order,
   | "stripePaymentIntentId"
+  | "stripePaymentIntentStatus"
   | "addressId"
   | "storeId"
+  | "userId"
   | "items"
   | "email"
   | "createdAt"
 > & {
   items: CheckoutItem[];
   createdAt: number;
+  paymentStatus: string | null;
 };
 
 export type BuyersOrderTable = Omit<
   Order,
   | "stripePaymentIntentId"
+  | "stripePaymentIntentStatus"
   | "addressId"
   | "storeId"
+  | "userId"
   | "items"
   | "name"
   | "email"
@@ -84,4 +57,5 @@ export type BuyersOrderTable = Omit<
   items: CheckoutItem[];
   createdAt: number;
   sellerName: string;
+  paymentStatus: string | null;
 };

@@ -8,7 +8,6 @@ import { db } from "@/db/db";
 import { Product, products, stores } from "@/db/schema";
 import { currencyFormatter } from "@/lib/currency";
 import { eq } from "drizzle-orm";
-import Image from "next/image";
 import Link from "next/link";
 import { productsQueryParams, routes } from "@/lib/routes";
 import { ProductImage } from "@/components/product-image";
@@ -51,6 +50,8 @@ export default async function StorefrontProductDetails(props: {
           <ProductImage
             src={product.images[0]?.url}
             alt={product.images[0]?.alt}
+            fallbackText={product.name ?? "Product"}
+            fallbackHint={store.name ?? "ShopSmart"}
             height="h-96"
             width="w-full"
           />
@@ -58,14 +59,15 @@ export default async function StorefrontProductDetails(props: {
             <>
               <div className="flex items-center justify-start gap-2 mt-2 overflow-auto flex-nowrap">
                 {product.images.slice(1).map((image) => (
-                  <div key={image.id} className="relative h-24 w-24">
-                    <Image
-                      src={image.url}
-                      alt={image.alt}
-                      fill
-                      className="object-cover h-24 w-24"
-                    />
-                  </div>
+                  <ProductImage
+                    key={image.id}
+                    src={image.url}
+                    alt={image.alt}
+                    fallbackText={product.name ?? "Product"}
+                    fallbackHint={store.name ?? "ShopSmart"}
+                    height="h-24"
+                    width="w-24"
+                  />
                 ))}
               </div>
             </>

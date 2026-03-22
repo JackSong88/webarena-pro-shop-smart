@@ -1,23 +1,16 @@
+import { Button } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
-import { getPaymentIntentDetails } from "@/server-actions/stripe/payment";
-import { Verification } from "./components/verification";
 import { db } from "@/db/db";
-import { stores } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { addresses, orders, stores } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
 import { CheckoutItem, OrderItemDetails } from "@/lib/types";
 import { Check } from "lucide-react";
 import { OrderLineItems } from "@/components/order-line-items";
 import { getDetailsOfProductsOrdered } from "@/server-actions/orders";
 import { currencyFormatter } from "@/lib/currency";
-
-const getSellerName = async (storeSlug: string) => {
-  return await db
-    .select({
-      name: stores.name,
-    })
-    .from(stores)
-    .where(eq(stores.slug, storeSlug));
-};
+import Link from "next/link";
+import { routes } from "@/lib/routes";
+import { parseJsonColumn } from "@/lib/utils";
 
 export default async function OrderConfirmation({
   params,
@@ -27,118 +20,115 @@ export default async function OrderConfirmation({
     storeSlug: string;
   };
   searchParams: {
-    payment_intent: string;
-    payment_intent_client_secret: string;
-    redirect_status: "success";
-    delivery_postal_code: string;
+    order?: string;
   };
 }) {
-  const { paymentDetails, isVerified } = await getPaymentIntentDetails({
-    paymentIntentId: searchParams.payment_intent,
-    storeSlug: params.storeSlug,
-    deliveryPostalCode: searchParams.delivery_postal_code,
-  });
-
-  const checkoutItems = JSON.parse(
-    paymentDetails?.metadata?.items ?? "[]"
-  ) as CheckoutItem[];
-
-  let products: OrderItemDetails[] = [];
-  let sellerDetails;
-  if (isVerified) {
-    sellerDetails = (await getSellerName(params.storeSlug))[0];
-    products = await getDetailsOfProductsOrdered(checkoutItems);
+  if (!searchParams.order) {
+    return (
+      <div className="mt-8 rounded-xl border border-dashed border-border p-8 text-center">
+        <Heading size="h3">Order not found</Heading>
+        <p className="mt-3 text-muted-foreground">
+          We couldn&apos;t find a local order reference in the URL.
+        </p>
+        <Link href={routes.products} className="mt-6 inline-block">
+          <Button>Continue shopping</Button>
+        </Link>
+      </div>
+    );
   }
+
+  const [record] = await db
+    .select({
+      order: orders,
+      address: addresses,
+      sellerName: stores.name,
+    })
+    .from(orders)
+    .leftJoin(addresses, eq(orders.addressId, addresses.id))
+    .leftJoin(stores, eq(orders.storeId, stores.id))
+    .where(
+      and(
+        eq(orders.stripePaymentIntentId, searchParams.order),
+        eq(stores.slug, params.storeSlug)
+      )
+    );
+
+  if (!record?.order) {
+    throw new Error("Order not found");
+  }
+
+  const checkoutItems = parseJsonColumn<CheckoutItem[]>(record.order.items, []);
+  const products: OrderItemDetails[] = await getDetailsOfProductsOrdered(checkoutItems);
 
   return (
     <div className="mt-8">
-      {isVerified ? (
-        <div>
-          <Heading size="h2">
-            <div className="flex md:flex-row flex-col items-start md:items-center justify-start gap-4 md:gap-2">
-              <div className="border-2 border-green-600 text-green-600 bg-transparent rounded-full h-10 w-10 flex items-center justify-center">
-                <Check className="text-green-600" size={26} />
-              </div>
-              <span>
-                Thanks for your order,{" "}
-                <span className="capitalize">
-                  {paymentDetails?.shipping?.name?.split(" ")[0]}
-                </span>
-                !
-              </span>
-            </div>
-          </Heading>
-          <p className="text-muted-foreground mt-4">
-            Your payment confirmation ID is #
-            {searchParams.payment_intent.slice(3)}
+      <Heading size="h2">
+        <div className="flex md:flex-row flex-col items-start md:items-center justify-start gap-4 md:gap-2">
+          <div className="border-2 border-green-600 text-green-600 bg-transparent rounded-full h-10 w-10 flex items-center justify-center">
+            <Check className="text-green-600" size={26} />
+          </div>
+          <span>
+            Thanks for your order,{" "}
+            <span className="capitalize">{record.order.name?.split(" ")[0]}</span>
+            !
+          </span>
+        </div>
+      </Heading>
+      <p className="text-muted-foreground mt-4">
+        Your local order reference is {searchParams.order}
+      </p>
+      <div className="flex flex-col gap-4 mt-8">
+        <div className="p-6 bg-secondary border border-border rounded-md">
+          <Heading size="h3">What&apos;s next?</Heading>
+          <p>
+            This demo order has been written directly to the local database. The
+            seller can review it immediately from the account dashboard.
           </p>
-          <div className="flex flex-col gap-4 mt-8">
-            <div className="p-6 bg-secondary border border-border rounded-md">
-              <Heading size="h3">What&apos;s next?</Heading>
+        </div>
+        <div className="lg:grid grid-cols-2 gap-4 flex flex-col">
+          <div className="p-6 bg-secondary border border-border rounded-md sm:grid grid-cols-3 flex flex-col gap-4">
+            <div className="sm:col-span-2">
+              <div className="mb-2">
+                <Heading size="h4">Shipping Address</Heading>
+              </div>
+              <p>{record.order.name}</p>
+              <p className="mb-3">{record.order.email}</p>
+              <p>{record.address?.line1}</p>
+              <p>{record.address?.line2}</p>
               <p>
-                Our warehouse team is busy preparing your order. You&apos;ll
-                receive an email once your order ships.
+                {record.address?.city}, {record.address?.postal_code}
+              </p>
+              <p>
+                {record.address?.state}, {record.address?.country}
               </p>
             </div>
-            <div className="lg:grid grid-cols-2 gap-4 flex flex-col">
-              <div className="p-6 bg-secondary border border-border rounded-md sm:grid grid-cols-3 flex flex-col gap-4">
-                <div className="sm:col-span-2">
-                  <div className="mb-2">
-                    <Heading size="h4">Shipping Address</Heading>
-                  </div>
-                  <p>{paymentDetails?.shipping?.name}</p>
-                  <p className="mb-3">{paymentDetails?.receipt_email}</p>
-                  <p>{paymentDetails?.shipping?.address?.line1}</p>
-                  <p>{paymentDetails?.shipping?.address?.line2}</p>
-                  <p>
-                    {paymentDetails?.shipping?.address?.city},{" "}
-                    {paymentDetails?.shipping?.address?.postal_code}
-                  </p>
-                  <p>
-                    {paymentDetails?.shipping?.address?.state},{" "}
-                    {paymentDetails?.shipping?.address?.country}
-                  </p>
-                </div>
-                <div>
-                  <div className="mb-2">
-                    <Heading size="h4">Seller Details</Heading>
-                  </div>
-                  <p>{sellerDetails?.name}</p>
-                </div>
+            <div>
+              <div className="mb-2">
+                <Heading size="h4">Seller Details</Heading>
               </div>
-              <div className="p-6 border border-border bg-secondary rounded-md">
-                <div className="mb-2">
-                  <Heading size="h4">Order Details</Heading>
-                </div>
-                <OrderLineItems
-                  checkoutItems={checkoutItems}
-                  products={products}
-                />
-                <div className="border-y border-slate-200 py-2 px-2 mx-1 mt-2 flex items-center gap-2">
-                  <Heading size="h4">Order Total: </Heading>
-                  <p className="scroll-m-20 text-xl tracking-tight">
-                    {currencyFormatter(
-                      checkoutItems.reduce(
-                        (acc, curr) => acc + curr.price * curr.qty,
-                        0
-                      )
-                    )}
-                  </p>
-                </div>
-              </div>
+              <p>{record.sellerName}</p>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Payment status: paid
+              </p>
+            </div>
+          </div>
+          <div className="p-6 border border-border bg-secondary rounded-md">
+            <div className="mb-2">
+              <Heading size="h4">Order Details</Heading>
+            </div>
+            <OrderLineItems
+              checkoutItems={checkoutItems}
+              products={products}
+            />
+            <div className="border-y border-slate-200 py-2 px-2 mx-1 mt-2 flex items-center gap-2">
+              <Heading size="h4">Order Total: </Heading>
+              <p className="scroll-m-20 text-xl tracking-tight">
+                {currencyFormatter(Number(record.order.total))}
+              </p>
             </div>
           </div>
         </div>
-      ) : (
-        <div>
-          <Heading size="h2">Thanks for your order!</Heading>
-          <p className="mb-4 mt-2">
-            Please enter your delivery postcode below to view your order
-            details.
-          </p>
-          <Verification />
-        </div>
-      )}
+      </div>
     </div>
   );
 }

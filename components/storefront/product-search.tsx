@@ -14,9 +14,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import Image from "next/image";
 import { ProductImages } from "@/lib/types";
-import { ImageOff } from "lucide-react";
 import { currencyFormatter } from "@/lib/currency";
 import { LoadingSkeleton } from "../ui/loading-skeleton";
 import { ProductImage } from "../product-image";
@@ -112,6 +110,8 @@ export function ProductSearch() {
                   <ProductImage
                     src={product.images[0]?.url}
                     alt={product.images[0]?.alt}
+                    fallbackText={product.name ?? "Product"}
+                    fallbackHint="Search"
                     sizes="50px"
                     height="h-12"
                     width="w-14"

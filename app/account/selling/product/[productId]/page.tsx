@@ -6,20 +6,20 @@ import {
   deleteProduct,
   updateProduct,
 } from "@/server-actions/products";
-import { currentUser } from "@clerk/nextjs";
+import { requireUser } from "@/lib/auth";
 import { and, eq } from "drizzle-orm";
 
 export default async function ProductDetailPage(props: {
   params: { productId: string };
 }) {
-  const user = await currentUser();
+  const user = await requireUser();
 
   const productDetails = await db
     .select()
     .from(products)
     .where(
       and(
-        eq(products.storeId, Number(user?.privateMetadata.storeId)),
+        eq(products.storeId, Number(user?.storeId)),
         eq(products.id, Number(props.params.productId))
       )
     )

@@ -47,7 +47,7 @@ export const CreateNewStore = (props: { createStore: typeof createStore }) => {
             className="mt-2"
             id="store-name"
             name="store-name"
-            placeholder="e.g. Tim's Toys"
+            placeholder="e.g. Orchard Market"
             value={storeName}
             onChange={(e) => setStoreName(e.target.value)}
           />
@@ -62,14 +62,13 @@ export const CreateNewStore = (props: { createStore: typeof createStore }) => {
       <div className="col-span-1">
         <Heading size="h3">Why sell on One Stop Shop?</Heading>
         <p className="mt-2">
-          Thousands of visitors visit this site every day, searching for a whole
-          range of products. Get the exposure your products deserve by creating
-          a store.
+          Run a grocery, prepared-meals, or bakery storefront with local auth,
+          local checkout, and seeded demo data already in place.
         </p>
         <ul className="list-disc ml-6 mt-8 flex flex-col gap-2">
-          <li>Thousands of visitors every day</li>
-          <li>No monthly fees</li>
-          <li>24/7 customer support</li>
+          <li>Food-first marketplace flow for grocery-style catalogs</li>
+          <li>No hosted auth or payment dependencies required locally</li>
+          <li>Simple reset-and-reseed workflow for demos and testing</li>
         </ul>
       </div>
     </div>
