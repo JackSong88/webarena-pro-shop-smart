@@ -9,6 +9,7 @@ import {
   hashPassword,
   verifyPassword,
 } from "@/lib/auth";
+import { ensureDemoAccountSeed } from "@/lib/demo-auth-seed";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -26,7 +27,11 @@ const signUpSchema = z.object({
 
 export async function signIn(values: { email: string; password: string }) {
   try {
-    const { email, password } = signInSchema.parse(values);
+    const parsed = signInSchema.parse(values);
+    const email = parsed.email.toLowerCase();
+    const { password } = parsed;
+
+    await ensureDemoAccountSeed(email);
 
     const [user] = await db.select().from(users).where(eq(users.email, email));
 
@@ -47,7 +52,7 @@ export async function signIn(values: { email: string; password: string }) {
       action: "Welcome back to ShopSmart.",
     };
   } catch (error) {
-    console.log(error);
+    console.error("Sign in failed.", error);
 
     return {
       error: true,
@@ -64,10 +69,11 @@ export async function signUp(values: {
 }) {
   try {
     const input = signUpSchema.parse(values);
+    const email = input.email.toLowerCase();
     const [existingUser] = await db
       .select({ id: users.id })
       .from(users)
-      .where(eq(users.email, input.email));
+      .where(eq(users.email, email));
 
     if (existingUser) {
       return {
@@ -79,7 +85,7 @@ export async function signUp(values: {
 
     const result = await db.insert(users).values({
       name: input.name,
-      email: input.email,
+      email,
       passwordHash: hashPassword(input.password),
       createdAt: Math.floor(Date.now() / 1000),
     });
@@ -93,7 +99,7 @@ export async function signUp(values: {
       action: "You're ready to start shopping.",
     };
   } catch (error) {
-    console.log(error);
+    console.error("Sign up failed.", error);
 
     return {
       error: true,

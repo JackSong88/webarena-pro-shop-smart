@@ -10,6 +10,20 @@ import { cache } from "react";
 const SESSION_COOKIE_NAME = "shopsmart_session";
 const SESSION_DURATION_SECONDS = 60 * 60 * 24 * 30;
 
+function getSessionCookieOptions(expires: Date) {
+  const isProduction = process.env.NODE_ENV === "production";
+  const isHuggingFaceSpace = Boolean(process.env.SPACE_HOST);
+  const useCrossSiteCookie = isProduction && isHuggingFaceSpace;
+
+  return {
+    httpOnly: true,
+    sameSite: useCrossSiteCookie ? "none" : "lax",
+    secure: isProduction,
+    expires,
+    path: "/",
+  } as const;
+}
+
 export function hashPassword(password: string) {
   const salt = randomBytes(16).toString("hex");
   const hash = scryptSync(password, salt, 64).toString("hex");
@@ -37,25 +51,30 @@ export const getCurrentUser = cache(async () => {
     return null;
   }
 
-  const [record] = await db
-    .select({
-      id: users.id,
-      name: users.name,
-      email: users.email,
-      passwordHash: users.passwordHash,
-      storeId: users.storeId,
-      createdAt: users.createdAt,
-    })
-    .from(sessions)
-    .innerJoin(users, eq(sessions.userId, users.id))
-    .where(
-      and(
-        eq(sessions.sessionToken, sessionToken),
-        gt(sessions.expiresAt, Math.floor(Date.now() / 1000))
-      )
-    );
+  try {
+    const [record] = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        passwordHash: users.passwordHash,
+        storeId: users.storeId,
+        createdAt: users.createdAt,
+      })
+      .from(sessions)
+      .innerJoin(users, eq(sessions.userId, users.id))
+      .where(
+        and(
+          eq(sessions.sessionToken, sessionToken),
+          gt(sessions.expiresAt, Math.floor(Date.now() / 1000))
+        )
+      );
 
-  return record ?? null;
+    return record ?? null;
+  } catch (error) {
+    console.error("Failed to load the current user from the session store.", error);
+    return null;
+  }
 });
 
 export async function requireUser() {
@@ -79,13 +98,11 @@ export async function createSession(userId: number) {
     expiresAt,
   });
 
-  cookies().set(SESSION_COOKIE_NAME, sessionToken, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    expires: new Date(expiresAt * 1000),
-    path: "/",
-  });
+  cookies().set(
+    SESSION_COOKIE_NAME,
+    sessionToken,
+    getSessionCookieOptions(new Date(expiresAt * 1000))
+  );
 }
 
 export async function destroySession() {
@@ -95,11 +112,9 @@ export async function destroySession() {
     await db.delete(sessions).where(eq(sessions.sessionToken, sessionToken));
   }
 
-  cookies().set(SESSION_COOKIE_NAME, "", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    expires: new Date(0),
-    path: "/",
-  });
+  cookies().set(
+    SESSION_COOKIE_NAME,
+    "",
+    getSessionCookieOptions(new Date(0))
+  );
 }

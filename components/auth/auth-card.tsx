@@ -8,8 +8,7 @@ import { routes } from "@/lib/routes";
 import { signIn, signUp } from "@/server-actions/auth";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const demoAccounts = [
   "buyer@shopsmart.local / demo1234",
@@ -19,9 +18,14 @@ const demoAccounts = [
 ];
 
 export function AuthCard(props: { mode: "signIn" | "signUp" }) {
-  const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isEmbedded, setIsEmbedded] = useState(false);
+  const [status, setStatus] = useState<{
+    tone: "error" | "success";
+    title: string;
+    description: string;
+  } | null>(null);
   const [formValues, setFormValues] = useState({
     name: "",
     email: "",
@@ -29,6 +33,10 @@ export function AuthCard(props: { mode: "signIn" | "signUp" }) {
   });
 
   const isSignIn = props.mode === "signIn";
+
+  useEffect(() => {
+    setIsEmbedded(window.self !== window.top);
+  }, []);
 
   return (
     <div className="grid w-full max-w-5xl gap-8 rounded-3xl border border-border bg-white p-4 shadow-sm md:grid-cols-[1.15fr_0.85fr] md:p-8">
@@ -58,6 +66,7 @@ export function AuthCard(props: { mode: "signIn" | "signUp" }) {
         onSubmit={(event) => {
           event.preventDefault();
           setIsLoading(true);
+          setStatus(null);
 
           const action = isSignIn
             ? signIn({
@@ -68,15 +77,27 @@ export function AuthCard(props: { mode: "signIn" | "signUp" }) {
 
           action
             .then((result) => {
+              setStatus({
+                tone: result.error ? "error" : "success",
+                title: result.message,
+                description: result.action,
+              });
+
               toast({
                 title: result.message,
                 description: result.action,
               });
 
               if (!result.error) {
-                router.push(routes.account);
-                router.refresh();
+                window.location.assign(routes.account);
               }
+            })
+            .catch(() => {
+              setStatus({
+                tone: "error",
+                title: isSignIn ? "Sign in failed" : "Sign up failed",
+                description: "The request did not complete. Please try again.",
+              });
             })
             .finally(() => setIsLoading(false));
         }}
@@ -88,6 +109,12 @@ export function AuthCard(props: { mode: "signIn" | "signUp" }) {
           <h2 className="mt-2 text-2xl font-semibold">
             {isSignIn ? "Sign in to your account" : "Create your account"}
           </h2>
+          {isEmbedded ? (
+            <p className="mt-3 text-sm text-muted-foreground">
+              If this Space is embedded on Hugging Face, open it in a new tab
+              before signing in so the browser can keep the session cookie.
+            </p>
+          ) : null}
         </div>
 
         {!isSignIn && (
@@ -146,6 +173,31 @@ export function AuthCard(props: { mode: "signIn" | "signUp" }) {
           {isLoading && <Loader2 size={18} className="animate-spin" />}
           {isSignIn ? "Sign In" : "Create Account"}
         </Button>
+
+        {status ? (
+          <div
+            className={
+              status.tone === "error"
+                ? "rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                : "rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
+            }
+          >
+            <p className="font-medium">{status.title}</p>
+            <p className="mt-1">{status.description}</p>
+          </div>
+        ) : null}
+
+        {isEmbedded ? (
+          <Button asChild variant="outline">
+            <a
+              href={isSignIn ? routes.signIn : routes.signUp}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Open This Page In A New Tab
+            </a>
+          </Button>
+        ) : null}
 
         <p className="text-sm text-muted-foreground">
           {isSignIn ? "Need an account?" : "Already have an account?"}{" "}
